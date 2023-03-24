@@ -12,7 +12,7 @@ pub trait Command {
         Ok(())
     }
 
-    fn action(&self) -> Result<()>{
+    fn action(&self) -> Result<()> {
         Ok(())
     }
 

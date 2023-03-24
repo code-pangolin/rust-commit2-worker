@@ -1,9 +1,11 @@
 use std::{ffi::OsString, panic::catch_unwind};
 
 use clap::{command, Parser, Subcommand};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
 use super::{run::Run, Command};
+
+static DEFAULT_WORKER_REPO: Lazy<String> = Lazy::new(|| format!("{}/.lotusworker", home_dir()));
 
 #[derive(Parser, Debug)] // requires `derive` feature
 #[command(name = "lotus-worker")]
@@ -62,9 +64,4 @@ fn home_dir() -> String {
         .to_str()
         .unwrap()
         .to_string()
-}
-
-lazy_static! {
-    static ref DEFAULT_WORKER_REPO: String = format!("{}/.lotusworker", home_dir());
-    static ref DEFAULT_MINER_REPO: String = format!("{}/.lotusminer", home_dir());
 }
