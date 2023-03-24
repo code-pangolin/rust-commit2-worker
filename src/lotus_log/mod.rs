@@ -1,4 +1,5 @@
 use anyhow::{Ok, Result};
+use colorful::{Color, Colorful};
 use log::{set_max_level, Level, Log};
 
 pub struct LotusLog {
@@ -18,19 +19,28 @@ impl Log for LotusLog {
         }
 
         let now = chrono::Local::now();
+
+        let level_color = match record.metadata().level() {
+            Level::Error => Color::Red,
+            Level::Warn => Color::Yellow,
+            Level::Info => Color::White,
+            Level::Debug => Color::Green,
+            Level::Trace => Color::Green,
+        };
+
         let output = if let Some(t) = &self.time_format {
             format!(
-                "{} {}: {} - {}",
+                "{}\t{}\t{}\t{}",
                 now.format(t),
+                record.level().as_str().gradient(level_color),
                 &self.name,
-                record.level(),
                 record.args()
             )
         } else {
-            format!("{}: {} - {}", &self.name, record.level(), record.args())
+            format!("{}\t{}\t{}", record.level(), &self.name, record.args())
         };
 
-        print!("{}", output);
+        print!("{}\n", output);
     }
 
     fn flush(&self) {}
@@ -45,6 +55,7 @@ impl LotusLog {
         }
     }
 
+    /// See the [`chrono::format::strftime`] module
     pub fn set_time_format(&mut self, format: String) {
         self.time_format = Some(format);
     }

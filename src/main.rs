@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 
 static LOGGER: Lazy<LotusLog> = Lazy::new(|| {
     let mut logger = LotusLog::new("lotus-worker".to_string(), log::Level::Info);
-    logger.set_time_format("%Y-%m-%d %H:%M:%S%.3f".to_string());
+    logger.set_time_format("%Y-%m-%dT%H:%M:%S%.3f%z".to_string());
     logger
 });
 
