@@ -25,7 +25,7 @@ impl Log for LotusLog {
             Level::Warn => Color::Yellow,
             Level::Info => Color::White,
             Level::Debug => Color::Blue,
-            Level::Trace => Color::Blue,
+            Level::Trace => Color::Cyan,
         };
 
         let output = if let Some(t) = &self.time_format {

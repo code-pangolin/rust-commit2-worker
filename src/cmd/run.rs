@@ -1,6 +1,7 @@
-use anyhow::Ok;
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use log::warn;
+use parse_size::parse_size;
 
 use super::{check_env::show_env, Command};
 
@@ -18,6 +19,10 @@ pub(crate) struct Run {
 
     #[arg(long, hide = true)]
     address: Option<String>,
+
+    /// size of the sectors in bytes, i.e. 32GiB
+    #[arg(long, env = "LOTUS_WORKER_SECTOR_SIZE", default_value = "32GiB")]
+    sector_size: String,
 
     /// don't use storageminer repo for sector storage
     #[arg(long, env = "LOTUS_WORKER_NO_LOCAL_STORAGE")]
@@ -104,14 +109,19 @@ pub(crate) struct Run {
 }
 
 impl Command for Run {
-    fn before(&self) -> anyhow::Result<()> {
+    fn before(&self) -> Result<()> {
         if self.address.is_some() {
             warn!("The '--address' flag is deprecated, it has been replaced by '--listen'")
         }
         Ok(())
     }
-    fn action(&self) -> anyhow::Result<()> {
+    fn action(&self) -> Result<()> {
         show_env();
+        let _sector_size_int = match parse_size(&self.sector_size) {
+            Ok(o) => o,
+            Err(e) => return Err(anyhow!("parse sector_size: {}", e)),
+        };
+
         Ok(())
     }
 }
