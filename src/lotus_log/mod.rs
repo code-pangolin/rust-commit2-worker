@@ -20,8 +20,6 @@ impl Log for LotusLog {
 
         let now = chrono::Local::now();
 
-        println!("{}", record.metadata().level());
-
         let level_color = match record.metadata().level() {
             Level::Error => Color::Red,
             Level::Warn => Color::Yellow,
@@ -29,8 +27,6 @@ impl Log for LotusLog {
             Level::Debug => Color::Blue,
             Level::Trace => Color::Blue,
         };
-
-        println!("{:?}", level_color);
 
         let output = if let Some(t) = &self.time_format {
             format!(

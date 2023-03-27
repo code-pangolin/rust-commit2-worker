@@ -1,5 +1,6 @@
 pub mod command;
 
+mod check_env;
 pub(crate) mod run;
 
 use anyhow::Result;

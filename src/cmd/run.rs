@@ -2,7 +2,7 @@ use anyhow::Ok;
 use clap::Parser;
 use log::warn;
 
-use super::Command;
+use super::{check_env::show_env, Command};
 
 #[derive(Parser, Debug)] // requires `derive` feature
 #[command(name = "run")]
@@ -111,7 +111,7 @@ impl Command for Run {
         Ok(())
     }
     fn action(&self) -> anyhow::Result<()> {
-        println!("asdasda");
+        show_env();
         Ok(())
     }
 }
