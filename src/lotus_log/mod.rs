@@ -1,5 +1,5 @@
+use ansi_term::Color;
 use anyhow::{Ok, Result};
-use colorful::{Color, Colorful};
 use log::{set_max_level, Level, Log};
 
 pub struct LotusLog {
@@ -20,24 +20,33 @@ impl Log for LotusLog {
 
         let now = chrono::Local::now();
 
+        println!("{}", record.metadata().level());
+
         let level_color = match record.metadata().level() {
             Level::Error => Color::Red,
             Level::Warn => Color::Yellow,
             Level::Info => Color::White,
-            Level::Debug => Color::Green,
-            Level::Trace => Color::Green,
+            Level::Debug => Color::Blue,
+            Level::Trace => Color::Blue,
         };
+
+        println!("{:?}", level_color);
 
         let output = if let Some(t) = &self.time_format {
             format!(
                 "{}\t{}\t{}\t{}",
                 now.format(t),
-                record.level().as_str().gradient(level_color),
+                level_color.paint(record.level().as_str()),
                 &self.name,
                 record.args()
             )
         } else {
-            format!("{}\t{}\t{}", record.level(), &self.name, record.args())
+            format!(
+                "{}\t{}\t{}",
+                level_color.paint(record.level().as_str()),
+                &self.name,
+                record.args()
+            )
         };
 
         print!("{}\n", output);
