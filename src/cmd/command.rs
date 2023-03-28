@@ -1,5 +1,6 @@
-use std::{ffi::OsString, panic::catch_unwind};
+use std::ffi::OsString;
 
+use async_trait::async_trait;
 use clap::{command, Parser, Subcommand};
 use once_cell::sync::Lazy;
 
@@ -31,29 +32,14 @@ enum AppSubcommands {
     Run(Run),
 }
 
+#[async_trait]
 impl Command for App {
-    fn action(&self) -> anyhow::Result<()> {
+    async fn action(&self) -> anyhow::Result<()> {
         match &self.command {
-            AppSubcommands::Run(command) => command.execute()?,
+            AppSubcommands::Run(command) => command.execute().await?,
         }
 
         Ok(())
-    }
-
-    fn execute(&self) -> anyhow::Result<()> {
-        match catch_unwind(|| {
-            self.before()?;
-            self.action()?;
-            self.after()
-        }) {
-            Ok(e) => {
-                return e;
-            }
-            Err(e) => {
-                //TODO: generate panic reports
-                panic!("{:?}", e)
-            }
-        };
     }
 }
 

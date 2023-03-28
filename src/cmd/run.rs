@@ -1,5 +1,8 @@
 use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use clap::Parser;
+use fil_proofs_param::{get_params, get_srs, params_json, srs_json};
+use futures::future;
 use log::warn;
 use parse_size::parse_size;
 
@@ -23,6 +26,10 @@ pub(crate) struct Run {
     /// size of the sectors in bytes, i.e. 32GiB
     #[arg(long, env = "LOTUS_WORKER_SECTOR_SIZE", default_value = "32GiB")]
     sector_size: String,
+
+    /// skip proof param
+    #[arg(long, env = "LOTUS_WORKER_SKIP_PARAM", default_value = "false")]
+    skip_param: bool,
 
     /// don't use storageminer repo for sector storage
     #[arg(long, env = "LOTUS_WORKER_NO_LOCAL_STORAGE")]
@@ -108,19 +115,30 @@ pub(crate) struct Run {
     http_server_timeout: Option<String>,
 }
 
+#[async_trait]
 impl Command for Run {
-    fn before(&self) -> Result<()> {
+    async fn before(&self) -> Result<()> {
         if self.address.is_some() {
             warn!("The '--address' flag is deprecated, it has been replaced by '--listen'")
         }
         Ok(())
     }
-    fn action(&self) -> Result<()> {
+    async fn action(&self) -> Result<()> {
         show_env();
         let _sector_size_int = match parse_size(&self.sector_size) {
             Ok(o) => o,
             Err(e) => return Err(anyhow!("parse sector_size: {}", e)),
         };
+
+        if !self.skip_param {
+            // let mut rt = tokio::runtime::Runtime::new().unwrap();
+            // rt.spawn(get_params(params_json(), 2048));
+            // rt.spawn(get_srs(srs_json()));
+
+            let (r1, r2) = future::join(get_params(params_json(), 2048), get_srs(srs_json())).await;
+            r1?;
+            r2?;
+        }
 
         Ok(())
     }

@@ -10,7 +10,6 @@ edition = "2021"
 
 [dependencies]
 fil-proofs-param = { path = "fil-proofs-param" }
-ansi_term = "0.12.1"
 anyhow = { version = "1.0.70", features = ["backtrace"] }
 backoff = { version = "0.4.0", features = ["tokio"] }
 chrono = { version = "0.4.24", default_features = false, features = [
@@ -31,3 +30,4 @@ termcolor = "1.2.0"
 tokio = { version = "1.26.0", features = ["macros","rt-multi-thread"] }
 humansize = "2.1.3"
 fil_logger = "0.1.6"
+async-trait = "0.1.68"

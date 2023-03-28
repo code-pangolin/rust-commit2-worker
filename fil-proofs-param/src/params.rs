@@ -1,7 +1,7 @@
-use blake2b_simd::State as Blake2b;
 use std::{fs::File, io, path::PathBuf};
 
 use anyhow::{Context, Result};
+use blake2b_simd::State as Blake2b;
 
 // Produces a BLAKE2b checksum for a file within the cache
 pub fn get_digest_for_file(dir: &PathBuf, filename: &str) -> Result<String> {

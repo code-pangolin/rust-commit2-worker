@@ -12,14 +12,13 @@ use std::{
     process::exit,
 };
 
+use anyhow::{anyhow, Result};
 use backoff::{future::retry, ExponentialBackoff};
-
-use anyhow::Result;
 use filecoin_proofs::param::has_extension;
 use futures::TryStreamExt;
 use humansize::{file_size_opts, FileSize};
 use log::{debug, error, info, trace, warn};
-use storage_proofs_core::parameter_cache::{ParameterData, ParameterMap, GROTH_PARAMETER_EXT};
+use storage_proofs_core::parameter_cache::{ParameterMap, GROTH_PARAMETER_EXT};
 use tokio::{fs::File, io::BufWriter};
 use tokio_util::compat::FuturesAsyncReadCompatExt;
 
@@ -58,39 +57,51 @@ async fn download_parameter_map(
     fs::create_dir_all(&get_param_dir)?;
 
     // Determine which files are outdated.
-    let mut filenames =
+    let filenames =
         get_filenames_requiring_download(&parameter_map, selected_file_names, &get_param_dir);
     if filenames.is_empty() {
         info!("no outdated files, exiting");
         return Ok(());
+    };
+
+    let mut tasks = Vec::with_capacity(filenames.len());
+
+    for filename in filenames {
+        info!("downloading params file: {}", filename);
+        let dir_clone = get_param_dir.clone();
+        let info = DownloadInfo {
+            cid: parameter_map[&filename].cid.clone(),
+            digest: parameter_map[&filename].digest.clone(),
+        };
+
+        tasks.push(tokio::task::spawn(async move {
+            fetch_verify_params(dir_clone, &filename, info)
+                .await
+                .map_err(|err| {
+                    error!("Error fetching param file {filename}: {err}");
+                    err
+                })
+        }));
     }
 
-    loop {
-        for filename in &filenames {
-            info!("downloading params file with ipget: {}", filename);
-            let path = get_full_path_for_file(&get_param_dir, filename);
-
-            match fetch_params(&path, &parameter_map[filename]).await {
-                Ok(_) => info!("finished downloading params file"),
-                Err(e) => warn!("failed to download params file: {}", e),
-            };
-        }
-        filenames = get_filenames_requiring_download(&parameter_map, filenames, &get_param_dir);
-        if filenames.is_empty() {
-            info!("succesfully updated all files, exiting");
-            return Ok(());
-        }
-        warn!(
-            "{} files failed to be fetched: {:?}",
-            filenames.len(),
-            filenames
-        );
-        let retry = true;
-        if !retry {
-            warn!("not retrying failed downloads, exiting");
-            exit(1);
+    let mut errors = Vec::<anyhow::Error>::new();
+    for t in tasks {
+        match t.await {
+            Err(err) => errors.push(err.into()),
+            Ok(Err(err)) => errors.push(err),
+            _ => (),
         }
     }
+
+    if !errors.is_empty() {
+        let error_messages: Vec<_> = errors.iter().map(|e| format!("{e}")).collect();
+        anyhow::bail!(anyhow::Error::msg(format!(
+            "Aggregated errors:\n{}",
+            error_messages.join("\n\n")
+        )))
+    };
+
+    Ok(())
 }
 
 pub async fn get_params(params_json: &str, size: u64) -> Result<()> {
@@ -181,7 +192,24 @@ fn get_filenames_requiring_download(
         .collect()
 }
 
-async fn fetch_params(path: &Path, info: &ParameterData) -> Result<(), anyhow::Error> {
+#[derive(Debug, Clone)]
+struct DownloadInfo {
+    cid: String,
+    digest: String,
+}
+
+async fn fetch_verify_params(path: PathBuf, name: &str, info: DownloadInfo) -> anyhow::Result<()> {
+    fetch_params(&get_full_path_for_file(&path, name), &info).await?;
+    let calculated_digest = get_digest_for_file(&PathBuf::from(path), name).unwrap();
+    let expected_digest = &info.digest;
+    if &calculated_digest != expected_digest {
+        return Err(anyhow!("file has unexpected digest"));
+    }
+    Ok(())
+}
+
+// ref https://github.com/ChainSafe/forest/blob/443b2c5736fef668691d6dfec1ac444e1e812171/utils/paramfetch/src/lib.rs#L164
+async fn fetch_params(path: &Path, info: &DownloadInfo) -> Result<(), anyhow::Error> {
     let gw = std::env::var(GATEWAY_ENV).unwrap_or_else(|_| GATEWAY.to_owned());
     info!("Fetching param file {:?} from {}", path, gw);
     let url = format!("{}{}", gw, info.cid);
@@ -194,6 +222,7 @@ async fn fetch_params(path: &Path, info: &ParameterData) -> Result<(), anyhow::E
 }
 
 async fn fetch_params_inner(url: impl AsRef<str>, path: &Path) -> Result<(), anyhow::Error> {
+    debug!("download file from: {}", url.as_ref());
     let client = https_client();
     let req = client.get(url.as_ref().try_into()?);
     let response = req.await.map_err(|e| anyhow::anyhow!(e))?;
