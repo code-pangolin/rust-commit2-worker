@@ -7,7 +7,7 @@ mod params;
 use std::{
     convert::TryInto,
     env,
-    fs::{self, rename},
+    fs::{self, remove_file},
     path::{Path, PathBuf},
     process::exit,
 };
@@ -60,7 +60,7 @@ async fn download_parameter_map(
     let filenames =
         get_filenames_requiring_download(&parameter_map, selected_file_names, &get_param_dir);
     if filenames.is_empty() {
-        info!("no outdated files, exiting");
+        debug!("no outdated files, exiting");
         return Ok(());
     };
 
@@ -157,7 +157,7 @@ pub async fn get_srs(srs_json: &str) -> Result<()> {
 fn get_filenames_requiring_download(
     parameter_map: &ParameterMap,
     selected_filenames: Vec<String>,
-    path: &PathBuf,
+    path: &Path,
 ) -> Vec<String> {
     selected_filenames
         .into_iter()
@@ -169,7 +169,7 @@ fn get_filenames_requiring_download(
                 return true;
             };
             trace!("params file found");
-            let calculated_digest = match get_digest_for_file(&path, filename) {
+            let calculated_digest = match get_digest_for_file(path, filename) {
                 Ok(digest) => digest,
                 Err(e) => {
                     warn!("failed to hash file {}, marking for download", e);
@@ -178,14 +178,13 @@ fn get_filenames_requiring_download(
             };
             let expected_digest = &parameter_map[filename].digest;
             if &calculated_digest == expected_digest {
-                trace!("file is up to date");
+                trace!("file is up to date:{}", &file_path.to_str().unwrap());
                 false
             } else {
                 trace!("file has unexpected digest, marking for download");
-                let new_filename = format!("{}-invalid-digest", filename);
-                let new_path = path.with_file_name(new_filename);
-                trace!("moving invalid params to: {}", new_path.display());
-                rename(path, new_path).expect("failed to move file");
+                remove_file(&file_path).expect(
+                    format!("failed to remove file: {}", file_path.to_str().unwrap()).as_str(),
+                );
                 true
             }
         })
@@ -198,9 +197,9 @@ struct DownloadInfo {
     digest: String,
 }
 
-async fn fetch_verify_params(path: PathBuf, name: &str, info: DownloadInfo) -> anyhow::Result<()> {
-    fetch_params(&get_full_path_for_file(&path, name), &info).await?;
-    let calculated_digest = get_digest_for_file(&PathBuf::from(path), name).unwrap();
+async fn fetch_verify_params(dir: PathBuf, name: &str, info: DownloadInfo) -> anyhow::Result<()> {
+    fetch_params(&get_full_path_for_file(&dir, name), &info).await?;
+    let calculated_digest = get_digest_for_file(&dir, name).unwrap();
     let expected_digest = &info.digest;
     if &calculated_digest != expected_digest {
         return Err(anyhow!("file has unexpected digest"));

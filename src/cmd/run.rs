@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use clap::Parser;
 use fil_proofs_param::{get_params, get_srs, params_json, srs_json};
 use futures::future;
-use log::warn;
+use log::{info, warn};
 use parse_size::parse_size;
 
 use super::{check_env::show_env, Command};
@@ -125,17 +125,19 @@ impl Command for Run {
     }
     async fn action(&self) -> Result<()> {
         show_env();
-        let _sector_size_int = match parse_size(&self.sector_size) {
+        let sector_size_int = match parse_size(&self.sector_size) {
             Ok(o) => o,
             Err(e) => return Err(anyhow!("parse sector_size: {}", e)),
         };
 
-        if !self.skip_param {
-            // let mut rt = tokio::runtime::Runtime::new().unwrap();
-            // rt.spawn(get_params(params_json(), 2048));
-            // rt.spawn(get_srs(srs_json()));
+        info!("sector size: {}", sector_size_int);
 
-            let (r1, r2) = future::join(get_params(params_json(), 2048), get_srs(srs_json())).await;
+        if !self.skip_param {
+            let (r1, r2) = future::join(
+                get_params(params_json(), sector_size_int),
+                get_srs(srs_json()),
+            )
+            .await;
             r1?;
             r2?;
         }

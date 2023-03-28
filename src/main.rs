@@ -9,7 +9,10 @@ use cmd::{command::App, Command};
 
 #[tokio::main]
 async fn main() {
-    env::set_var("RUST_LOG", "info");
+    if env::var_os("RUST_LOG").is_none() {
+        env::set_var("RUST_LOG", "info");
+    }
+
     fil_logger::init();
 
     if let Err(e) = App::parse().execute().await {
