@@ -36,7 +36,13 @@ static GATEWAY: &str = "https://proofs.filecoin.io/ipfs/";
 
 fn get_param_dir() -> String {
     match env::var(DIR_ENV) {
-        Ok(v) => v,
+        Ok(v) => {
+            if v.is_empty() {
+                PARAM_DIR.to_string()
+            } else {
+                v
+            }
+        }
         Err(_) => PARAM_DIR.to_string(),
     }
 }

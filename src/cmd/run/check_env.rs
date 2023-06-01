@@ -41,10 +41,14 @@ pub fn show_env() {
 fn check_env(env: &str, must: bool, cb: fn(env: &str)) -> String {
     let env_var = env::var(env);
 
-    if env_var.is_err() && must {
+    if (env_var.as_ref().is_err() || env_var.as_ref().unwrap().is_empty()) && must {
         panic!("env: {} can't empty", env)
     };
 
     cb(&env_var.clone().unwrap_or("".to_owned()));
     env_var.unwrap_or("".to_owned()).to_string()
+}
+
+pub fn set_disk_space(ssize: u64, num: u64) {
+    env::set_var("FIL_PROOFS_P1_THRESHOLD", format!("{}", ssize * (num + 10)))
 }

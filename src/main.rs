@@ -1,5 +1,6 @@
 #![feature(async_closure)]
 mod cmd;
+mod storage;
 use std::env;
 
 pub(crate) mod utils;
@@ -16,7 +17,7 @@ async fn main() {
     fil_logger::init();
 
     if let Err(e) = App::parse().execute().await {
-        println!("{}", e)
+        println!("{:?}", e);
     }
 
     // get_params(params_json(), 2048).await;

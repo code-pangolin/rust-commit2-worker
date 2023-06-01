@@ -1,17 +1,16 @@
-use std::ffi::OsString;
-
 use async_trait::async_trait;
 use clap::{command, Parser, Subcommand};
 use once_cell::sync::Lazy;
+use version::version;
 
-use super::{run::Run, Command};
+use super::{run::cmd::Run, Command};
 
 static DEFAULT_WORKER_REPO: Lazy<String> = Lazy::new(|| format!("{}/.lotusworker", home_dir()));
 
 #[derive(Parser, Debug)] // requires `derive` feature
 #[command(name = "lotus-worker")]
 #[command(bin_name = "lotus-worker")]
-#[command(version = "1.0.0 beta")] //TODO: version
+#[command(version = version!())]
 #[command(about = "Remote miner worker", long_about = None)]
 pub struct App {
     /// Specify worker repo path
@@ -21,7 +20,7 @@ pub struct App {
         default_value = DEFAULT_WORKER_REPO.as_str(),
         global = true
     )]
-    worker_repo: Option<OsString>,
+    worker_repo: String,
 
     #[command(subcommand)]
     command: AppSubcommands,
