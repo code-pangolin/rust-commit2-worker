@@ -1,6 +1,6 @@
 mod add_piece;
-mod status;
 pub mod fetch_sector;
+mod status;
 
 use std::{collections::HashMap, sync::Arc, time};
 

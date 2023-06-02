@@ -1,2 +1,2 @@
-pub mod sealer;
 pub mod paths;
+pub mod sealer;

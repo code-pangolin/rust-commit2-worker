@@ -1,8 +1,6 @@
 use std::{
     collections::HashMap,
-    ffi::OsString,
     fs::{create_dir_all, File},
-    os::unix::prelude::MetadataExt,
     path::PathBuf,
     sync::Arc,
 };
@@ -14,8 +12,11 @@ use axum::{
     Json,
 };
 use axum_client_ip::SecureClientIp;
-use filecoin_proofs::{PaddedBytesAmount, PieceInfo, UnpaddedBytesAmount};
-use fvm_shared::piece::PaddedPieceSize;
+use filecoin_proofs::{PaddedBytesAmount, UnpaddedBytesAmount};
+use fvm_shared::{
+    commcid::data_commitment_v1_to_cid,
+    piece::{PaddedPieceSize, PieceInfo},
+};
 use log::{error, info};
 
 use super::{Handler, ResponseError, ResultResponse};
@@ -92,7 +93,7 @@ async fn add_piece_inner(
         }
     }
 
-    let mut file = File::open(file_full_path).context("open file error")?;
+    let file = File::open(file_full_path).context("open file error")?;
 
     let file_meta = file.metadata().context("read file metadata error")?;
 
@@ -110,12 +111,17 @@ async fn add_piece_inner(
     let staged_file = File::open(staged_file_path)?;
 
     // filecoin_proofs::add_piece(file, staged_file, UnpaddedBytesAmount(input.piece_size.0), input.piece_sizes);
-    let ppi = filecoin_proofs::write_and_preprocess(
+    let ppi = filecoin_proofs::write_and_preprocess( //add_piece
         file,
         staged_file,
         UnpaddedBytesAmount(input.piece_size.0),
     )
     .context("add piece")?;
 
-    Ok(axum::Json(ppi.0))
+    let cid = data_commitment_v1_to_cid(&ppi.0.commitment).map_err(|st| anyhow!("{}", st))?;
+
+    Ok(axum::Json(PieceInfo {
+        size: PaddedPieceSize(PaddedBytesAmount::from(ppi.0.size).into()),
+        cid,
+    }))
 }
