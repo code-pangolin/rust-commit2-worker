@@ -1,4 +1,5 @@
 #![feature(async_closure)]
+pub mod api;
 mod cmd;
 mod storage;
 use std::env;

@@ -111,7 +111,8 @@ async fn add_piece_inner(
     let staged_file = File::open(staged_file_path)?;
 
     // filecoin_proofs::add_piece(file, staged_file, UnpaddedBytesAmount(input.piece_size.0), input.piece_sizes);
-    let ppi = filecoin_proofs::write_and_preprocess( //add_piece
+    let ppi = filecoin_proofs::write_and_preprocess(
+        //add_piece
         file,
         staged_file,
         UnpaddedBytesAmount(input.piece_size.0),

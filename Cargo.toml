@@ -38,6 +38,9 @@ axum-client-ip = "0.4.0"
 time = "0.3.20"
 thiserror = "1.0.40"
 filecoin-proofs = { version = "14.0.0", features = [] }
+hyper = "0.14.26"
+serde_bytes = "0.11.9"
+base64 = "0.21.2"
 
 [features]
 default = ["opencl"]

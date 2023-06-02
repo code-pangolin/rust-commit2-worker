@@ -1,5 +1,7 @@
 mod add_piece;
-pub mod fetch_sector;
+mod commit2;
+mod error;
+mod fetch_sector;
 mod status;
 
 use std::{collections::HashMap, sync::Arc, time};
@@ -90,7 +92,7 @@ pub fn router(state: Arc<Handler>) -> Router {
         .route("/remote/seal/precommit1", post(root))
         .route("/remote/seal/precommit2", post(root))
         .route("/remote/seal/commit1", post(root))
-        .route("/remote/seal/commit2", post(root))
+        .route("/remote/seal/commit2", post(commit2::seal_commit2))
         .route("/remote/seal/push", post(root))
         .route("/remote/seal/fetch", post(root))
         .route("/remote/seal/status", get(status::status))
