@@ -8,7 +8,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_client_ip::SecureClientIp;
-use fvm_shared::sector::RegisteredSealProof;
+use fvm_shared::{address::Address, sector::RegisteredSealProof};
 
 use super::{error::HandlerError, Handler};
 use crate::{
@@ -45,10 +45,32 @@ async fn seal_commit2_inner(
     let input = parse_data(
         hyper::body::to_bytes(body)
             .await
-            .map_err(|e| HandlerError::InternalServerError(anyhow!("read body {}", e)))?
+            .map_err(|e| HandlerError::BadRequest(anyhow!("read body {}", e)))?
             .into(),
     )
-    .map_err(|e| HandlerError::InternalServerError(anyhow!("parse req {}", e)))?;
+    .map_err(|e| HandlerError::BadRequest(anyhow!("parse req {}", e)))?;
+
+    println!("{:?}", &input.commit1_out);
+
+    // https://github.com/filecoin-project/filecoin-ffi/blob/c149dfa67e6ea3db8c203023580a5052e724f99a/rust/src/proofs/api.rs#L217
+
+    let scp1o = serde_json::from_slice(&input.commit1_out.0)
+        .map_err(|e| HandlerError::BadRequest(anyhow!("parse commit1_out {}", e)))?;
+
+    let maddr = Address::new_id(input.sector.miner);
+
+    let mut prover_id: [u8; 32] = [0; 32];
+    let payload = maddr.payload().to_bytes();
+    prover_id[..payload.len()].copy_from_slice(&payload);
+
+    let result = filecoin_proofs_api::seal::seal_commit_phase2(
+        scp1o,
+        prover_id,
+        filecoin_proofs_api::SectorId::from(input.sector.number),
+    )
+    .map_err(|e| HandlerError::BadRequest(anyhow!("seal_commit_phase2 {}", e)))?;
+
+    Ok::<Body, HandlerError>(Body::from(result.proof.to_vec()));
 
     Err(HandlerError::InternalServerError(anyhow!("TODO!")))
 }
@@ -56,20 +78,8 @@ async fn seal_commit2_inner(
 // https://github.com/filecoin-project/lotus/blob/6e7dc9532abdb3171427347710df4c860f1957a2/storage/sealer/ffiwrapper/sealer_cgo.go#L895
 
 fn parse_data(data: Vec<u8>) -> Result<RemoteCommit2Params> {
-    let ppp = RemoteCommit2Params {
-        sector: fvm_shared::sector::SectorID {
-            miner: 141324,
-            number: 3412314,
-        },
-        proof_type: RegisteredSealProof::StackedDRG2KiBV1P1,
-        commit1_out: Commit1Out(vec![2, 3, 4]),
-    };
-
-    serde_json::to_string_pretty(&ppp)?;
-
-    println!("{}", serde_json::to_string_pretty(&ppp)?);
-
     //TODO: gzip decompress
     let param: RemoteCommit2Params = serde_json::from_slice(&data)?;
+
     return Ok(param);
 }

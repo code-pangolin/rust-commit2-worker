@@ -8,18 +8,22 @@ use thiserror::Error;
 pub enum HandlerError {
     #[error("internal server error: {0} ")]
     InternalServerError(anyhow::Error),
+    #[error("bad request: {0} ")]
+    BadRequest(anyhow::Error),
 }
 
 impl HandlerError {
     pub fn status(&self) -> StatusCode {
         match self {
             HandlerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            HandlerError::BadRequest(_) => StatusCode::BAD_REQUEST,
         }
     }
 
     pub fn error(&self) -> &anyhow::Error {
         match self {
             HandlerError::InternalServerError(e) => e,
+            HandlerError::BadRequest(e) => e,
         }
     }
 }

@@ -1053,6 +1053,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "filecoin-proofs-api"
+version = "14.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "347a43603e12b147cc3d8285fee27771e1e9702d90f1f8e5018b8dd96b5da467"
+dependencies = [
+ "anyhow",
+ "bellperson",
+ "bincode",
+ "blstrs",
+ "filecoin-hashers",
+ "filecoin-proofs",
+ "fr32",
+ "lazy_static",
+ "serde",
+ "storage-proofs-core",
+]
+
+[[package]]
 name = "flexi_logger"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2220,6 +2238,7 @@ dependencies = [
  "fil-proofs-param",
  "fil_logger",
  "filecoin-proofs",
+ "filecoin-proofs-api",
  "futures",
  "fvm_shared",
  "home",
