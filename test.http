@@ -1,0 +1,4 @@
+POST http://127.0.0.1:3456/remote/seal/commit2
+Content-Type: application/json
+
+< ./test-commit2-body.json
