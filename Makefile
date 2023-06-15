@@ -12,6 +12,10 @@ check:
 	cargo +nightly udeps --all-targets
 	cargo fmt --check
 
+.PHONY: runcuda
+runcuda:
+	RUST_LOG=$(LOG_LEVEL) LOTUS_WORKER_SKIP_PARAM=false LOTUS_WORKER_SECTOR_SIZE=2KiB  cargo run --features cuda -- run
+
 .PHONY: run
 run:
-	RUST_LOG=$(LOG_LEVEL) LOTUS_WORKER_SKIP_PARAM=true LOTUS_WORKER_SECTOR_SIZE=2KiB cargo run -- run
+	RUST_LOG=$(LOG_LEVEL) LOTUS_WORKER_SKIP_PARAM=false LOTUS_WORKER_SECTOR_SIZE=2KiB cargo run -- run

@@ -128,7 +128,7 @@ pub async fn get_params(params_json: &str, size: u64) -> Result<()> {
     // files).
     filenames.retain(|filename| {
         let remove = has_extension(filename, GROTH_PARAMETER_EXT)
-            || parameter_map.get(filename).unwrap().sector_size != size;
+            && parameter_map.get(filename).unwrap().sector_size != size;
         if remove {
             let human_size = parameter_map[filename]
                 .sector_size

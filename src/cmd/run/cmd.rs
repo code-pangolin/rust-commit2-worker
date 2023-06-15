@@ -157,6 +157,7 @@ impl Command for Run {
         info!("sector size: {}", sector_size_int);
 
         if !self.skip_param {
+            info!("fetching param");
             let (r1, r2) = future::join(
                 get_params(params_json(), sector_size_int),
                 get_srs(srs_json()),

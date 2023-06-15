@@ -70,9 +70,7 @@ async fn seal_commit2_inner(
     )
     .map_err(|e| HandlerError::BadRequest(anyhow!("seal_commit_phase2 {}", e)))?;
 
-    Ok::<Body, HandlerError>(Body::from(result.proof.to_vec()));
-
-    Err(HandlerError::InternalServerError(anyhow!("TODO!")))
+    return Ok::<Body, HandlerError>(Body::from(result.proof.to_vec()));
 }
 
 // https://github.com/filecoin-project/lotus/blob/6e7dc9532abdb3171427347710df4c860f1957a2/storage/sealer/ffiwrapper/sealer_cgo.go#L895
