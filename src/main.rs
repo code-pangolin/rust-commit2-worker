@@ -2,6 +2,10 @@
 pub mod api;
 mod cmd;
 mod storage;
+pub mod rpc;
+pub mod rpc_api;
+mod auth;
+mod key_management;
 use std::env;
 
 pub(crate) mod utils;
