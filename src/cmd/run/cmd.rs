@@ -19,7 +19,10 @@ use version::version;
 use super::check_env::{set_disk_space, show_env};
 use crate::{
     cmd::{
-        run::handler::{self, Handler},
+        run::{
+            handler::{self, Handler},
+            rpc::start_rpc_server,
+        },
         Command,
     },
     storage::sealer::{seal_tasks::TaskType, worker::WorkerInfo},
@@ -263,13 +266,22 @@ impl Command for Run {
         info!("Setting up control endpoint at {}", &self.listen);
 
         let addr: SocketAddr = self.listen.parse()?;
+        let mut httpaddr: SocketAddr = self.listen.parse()?;
+        httpaddr.set_port(httpaddr.port() + 1);
 
         let h = Arc::new(seal_handler);
 
         let handler =
             handler::router(h.clone()).into_make_service_with_connect_info::<SocketAddr>();
 
-        let _ = join!(axum::Server::bind(&addr).serve(handler), handler::log(h));
+        let (rx, _tx) = tokio::sync::mpsc::channel(1);
+        let s3 = start_rpc_server(rx, &addr);
+
+        let _ = join!(
+            axum::Server::bind(&httpaddr).serve(handler),
+            handler::log(h),
+            s3
+        );
 
         Ok(())
     }

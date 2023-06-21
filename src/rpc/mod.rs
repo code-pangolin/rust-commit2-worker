@@ -10,7 +10,7 @@ mod rpc_ws_handler;
 use std::{net::TcpListener, sync::Arc};
 
 use axum::routing::{get, post};
-use jsonrpc_v2::{Data, Error as JSONRPCError, Params, Server};
+use jsonrpc_v2::{Data, Error as JSONRPCError, Server};
 use log::info;
 use tokio::sync::mpsc::Sender;
 
@@ -30,7 +30,7 @@ pub async fn start_rpc(
     rpc_endpoint: TcpListener,
     forest_version: &'static str,
     shutdown_send: Sender<()>,
-) -> Result<(), JSONRPCError> {
+) -> anyhow::Result<()> {
     use auth_api::*;
 
     let block_delay = 0;

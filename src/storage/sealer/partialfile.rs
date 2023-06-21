@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use anyhow::Result;
+
 use filecoin_proofs::PaddedBytesAmount;
 
 #[derive(Debug)]

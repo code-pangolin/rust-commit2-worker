@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0, MIT
 
 use std::sync::Arc;
-use tokio::sync::RwLock;
-use crate::key_management::KeyStore;
 
 use jsonrpc_v2::{MapRouter as JsonRpcMapRouter, Server as JsonRpcServer};
 use serde::{Deserialize, Serialize};
@@ -11,7 +9,7 @@ use serde::{Deserialize, Serialize};
 /// This is where you store persistent data, or at least access to stateful
 /// data.
 pub struct RPCState {
-    pub keystore: Arc<RwLock<KeyStore>>,
+    pub nodeapi: jsonrpc_core_client::TypedClient,
 }
 
 pub type JsonRpcServerState = Arc<JsonRpcServer<JsonRpcMapRouter>>;

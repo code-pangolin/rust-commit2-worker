@@ -5,8 +5,9 @@ use std::sync::Arc;
 
 use axum::response::IntoResponse;
 use http::{HeaderMap, StatusCode};
-use jsonrpc_v2::RequestObject as JsonRpcRequestObject;
-use jsonrpc_v2::{MapRouter as JsonRpcMapRouter, Server as JsonRpcServer};
+use jsonrpc_v2::{
+    MapRouter as JsonRpcMapRouter, RequestObject as JsonRpcRequestObject, Server as JsonRpcServer,
+};
 
 use crate::rpc::rpc_util::{call_rpc_str, check_permissions, get_auth_header, is_streaming_method};
 
@@ -35,7 +36,10 @@ pub async fn rpc_http_handler(
     }
 
     match call_rpc_str(rpc_server.clone(), rpc_call).await {
-        Ok(result) => (StatusCode::OK, response_headers, result),
+        Ok(result) => {
+            println!("{}", result);
+            (StatusCode::OK, response_headers, result)
+        }
         Err(err) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             response_headers,

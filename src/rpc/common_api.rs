@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0, MIT
 #![allow(clippy::unused_async)]
 
-use jsonrpc_v2::{Data, Error as JsonRpcError};
+use jsonrpc_v2::Error as JsonRpcError;
 use semver::Version as SemVer;
 use tokio::sync::mpsc::Sender;
 
 use crate::rpc_api::{
     common_api::*,
-    data_types::{APIVersion, RPCState, Version},
+    data_types::{APIVersion, Version},
 };
 
 pub(in crate::rpc) async fn version(

@@ -5,6 +5,6 @@ use axum::extract::State;
 
 use super::Handler;
 
-pub async fn fetch(State(state): State<Arc<Handler>>, url: String, outname: String) -> Result<()> {
+pub async fn fetch(State(_state): State<Arc<Handler>>, _url: String, _outname: String) -> Result<()> {
     Ok(())
 }

@@ -1,6 +1,6 @@
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, IntoResponseParts, Response},
+    response::{IntoResponse, Response},
 };
 use thiserror::Error;
 

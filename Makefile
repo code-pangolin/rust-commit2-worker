@@ -1,4 +1,5 @@
-LOG_LEVEL=debug
+LOG_LEVEL=info
+# LOG_LEVEL=trace
 
 .PHONY: fmt
 fmt:
@@ -18,4 +19,4 @@ runcuda:
 
 .PHONY: run
 run:
-	RUST_LOG=$(LOG_LEVEL) LOTUS_WORKER_SKIP_PARAM=false LOTUS_WORKER_SECTOR_SIZE=2KiB cargo run -- run
+	RUST_LOG=$(LOG_LEVEL) FIL_PROOFS_PARAMETER_CACHE=~/.lotusworker/filecoin-proof-parameters LOTUS_WORKER_SKIP_PARAM=true LOTUS_WORKER_SECTOR_SIZE=2KiB cargo run -- run

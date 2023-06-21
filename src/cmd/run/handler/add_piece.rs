@@ -95,7 +95,7 @@ async fn add_piece_inner(
 
     let file = File::open(file_full_path).context("open file error")?;
 
-    let file_meta = file.metadata().context("read file metadata error")?;
+    let _file_meta = file.metadata().context("read file metadata error")?;
 
     //TODO: NewInflator read and fill piece_size
     // 		data, err2 = shared.NewInflatorReader(reader, uint64(fi.Size()), args.PieceSize)

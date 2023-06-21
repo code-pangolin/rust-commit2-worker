@@ -1,0 +1,9 @@
+POST http://127.0.0.1:3456/rpc/v0
+Content-Type: application/json
+
+{
+    "id": 1,
+    "method": "Filecoin.Version"
+}
+
+###

@@ -1,22 +1,22 @@
-use std::{collections::HashMap, fmt::format, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use axum::{
     body::Body,
     extract::{Path, State},
-    http::{response::Parts, Extensions, HeaderMap, Request, StatusCode, Version},
+    http::{HeaderMap, Request, StatusCode},
     response::{IntoResponse, Response},
 };
 use axum_client_ip::SecureClientIp;
-use fvm_shared::{address::Address, sector::RegisteredSealProof};
+use fvm_shared::{address::Address};
 
 use super::{error::HandlerError, Handler};
 use crate::{
-    api::api_storage::RemoteCommit2Params, storage::sealer::storiface::storage::Commit1Out,
+    api::api_storage::RemoteCommit2Params,
 };
 
 pub async fn seal_commit2(
-    secure_ip: SecureClientIp,
+    _secure_ip: SecureClientIp,
     _header: HeaderMap,
     Path(_params): Path<HashMap<String, String>>,
     State(state): State<Arc<Handler>>,
@@ -37,10 +37,10 @@ pub async fn seal_commit2(
 }
 
 async fn seal_commit2_inner(
-    State(state): State<Arc<Handler>>,
+    State(_state): State<Arc<Handler>>,
     req: Request<Body>,
 ) -> anyhow::Result<Body, HandlerError> {
-    let (req_parts, body) = req.into_parts();
+    let (_req_parts, body) = req.into_parts();
 
     let input = parse_data(
         hyper::body::to_bytes(body)

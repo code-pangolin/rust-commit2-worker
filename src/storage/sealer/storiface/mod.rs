@@ -1,4 +1,4 @@
-use filecoin_proofs::UnpaddedBytesAmount;
+
 use serde::{Deserialize, Serialize};
 
 use self::storage::SectorRef;
