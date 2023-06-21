@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use self::storage::SectorRef;
 pub mod filetype;
 pub mod storage;
+pub mod worker;
 
 #[derive(PartialEq, Debug, Eq, Clone, Serialize, Deserialize)]
 pub struct UnpaddedPieceSize(pub u64);

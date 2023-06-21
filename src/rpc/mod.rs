@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0, MIT
 
 mod auth_api;
+mod commit2_api;
 mod common_api;
 mod rpc_http_handler;
 mod rpc_util;
@@ -16,11 +17,12 @@ use tokio::sync::mpsc::Sender;
 
 use crate::{
     rpc::{
+        commit2_api::seal_commit2,
         common_api::{shutdown, version},
         rpc_http_handler::rpc_http_handler,
         rpc_ws_handler::rpc_ws_handler,
     },
-    rpc_api::{auth_api::*, common_api::*, data_types::RPCState},
+    rpc_api::{auth_api::*, commit2_api::SEAL_COMMIT2, common_api::*, data_types::RPCState},
 };
 
 pub type RpcResult<T> = Result<T, JSONRPCError>;
@@ -44,6 +46,9 @@ pub async fn start_rpc(
             // Common API
             .with_method(VERSION, move || version(block_delay, forest_version))
             .with_method(SHUTDOWN, move || shutdown(shutdown_send.clone()))
+
+            // Commit2 API
+            .with_method(SEAL_COMMIT2, seal_commit2)
 
             .finish_unwrapped(),
     );

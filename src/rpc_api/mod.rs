@@ -92,3 +92,15 @@ pub mod common_api {
     pub type StartTimeParams = ();
     pub type StartTimeResult = chrono::DateTime<Utc>;
 }
+
+pub mod commit2_api {
+    use crate::storage::sealer::storiface::{
+        storage::{Commit1Out, SectorRef},
+        worker::CallID,
+    };
+
+    pub const SEAL_COMMIT2: &str = "Filecoin.SealCommit2";
+
+    pub type SealCommit2Params = (SectorRef, Commit1Out);
+    pub type SealCommit2Result = (CallID,);
+}
