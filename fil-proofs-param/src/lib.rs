@@ -134,7 +134,7 @@ pub async fn get_params(params_json: &str, size: u64) -> Result<()> {
                 .sector_size
                 .file_size(file_size_opts::BINARY)
                 .unwrap();
-            trace!("ignoring file: {} ({})", filename, human_size);
+            debug!("ignoring file: {} ({})", filename, human_size);
         }
         !remove
     });
