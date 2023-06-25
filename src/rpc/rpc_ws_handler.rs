@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use crate::rpc_api::data_types::JsonRpcServerState;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
@@ -17,7 +16,10 @@ use http::{HeaderMap, HeaderValue};
 use log::{debug, error, info, warn};
 use tokio::sync::RwLock;
 
-use crate::rpc::rpc_util::{call_rpc_str, check_permissions, get_auth_header, get_error_str};
+use crate::{
+    rpc::rpc_util::{call_rpc_str, check_permissions, get_auth_header, get_error_str},
+    rpc_api::data_types::JsonRpcServerState,
+};
 
 async fn rpc_ws_task(
     authorization_header: Option<HeaderValue>,

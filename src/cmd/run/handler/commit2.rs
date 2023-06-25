@@ -8,12 +8,10 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_client_ip::SecureClientIp;
-use fvm_shared::{address::Address};
+use fvm_shared::address::Address;
 
 use super::{error::HandlerError, Handler};
-use crate::{
-    api::api_storage::RemoteCommit2Params,
-};
+use crate::api::api_storage::RemoteCommit2Params;
 
 pub async fn seal_commit2(
     _secure_ip: SecureClientIp,

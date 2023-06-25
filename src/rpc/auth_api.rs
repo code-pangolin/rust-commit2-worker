@@ -3,10 +3,7 @@
 
 use jsonrpc_v2::{Data, Error as JsonRpcError, Params};
 
-
-use crate::{
-    rpc_api::{auth_api::*, data_types::RPCState},
-};
+use crate::rpc_api::{auth_api::*, data_types::RPCState};
 
 /// RPC call to create a new JWT Token
 pub(in crate::rpc) async fn auth_new(

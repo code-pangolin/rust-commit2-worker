@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use jsonrpc_core_client::{TypedClient};
+use jsonrpc_core_client::TypedClient;
 use tokio::sync::mpsc::Sender;
 use version::version;
 
