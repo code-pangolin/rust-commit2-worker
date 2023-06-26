@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use super::Key;
 
 #[derive(Default)]

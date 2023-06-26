@@ -1,5 +1,3 @@
-use std::vec::IntoIter;
-
 use anyhow::Result;
 
 use crate::storage::ipfs::datastore::query::{Entry, Results};

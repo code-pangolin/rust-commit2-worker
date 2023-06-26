@@ -4,7 +4,7 @@ use std::path::Path;
 
 use super::datastore::{
     error::DataStoreError,
-    query::{self, Entry, Results},
+    query::{Entry, Results},
     Datastore, Read, Write,
 };
 

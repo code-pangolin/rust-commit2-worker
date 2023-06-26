@@ -3,8 +3,6 @@ pub mod query;
 
 use std::fmt::Display;
 
-use query::Entry;
-
 use self::{
     error::DataStoreError,
     query::{Query, Results},
