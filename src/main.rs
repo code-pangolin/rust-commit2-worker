@@ -1,9 +1,10 @@
 #![feature(async_closure)]
+#![feature(return_position_impl_trait_in_trait)]
 pub mod api;
 mod cmd;
-mod storage;
 pub mod rpc;
 pub mod rpc_api;
+mod storage;
 // mod auth;
 use std::env;
 

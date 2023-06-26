@@ -62,8 +62,11 @@ libc = "0.2.146"
 dialoguer = "0.10.4"
 jsonrpc_client = "0.7.1"
 jsonrpc-core-client = { version = "18.0.0", features = ["http"] }
-uuid = {version = "1.3.4", features = ["serde"]}
-leveldb = "0.8.6"
+uuid = { version = "1.3.4", features = ["serde"] }
+rocksdb = "0.21.0"
+serde_cbor = "0.11.2"
+ciborium = "0.2.1"
+strum = { version = "0.25.0", features = ["derive", "strum_macros"] }
 
 [features]
 default = ["opencl"]
