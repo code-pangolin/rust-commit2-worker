@@ -59,7 +59,7 @@ impl<'a, T: Datastore> StateStore<'a, T> {
 
         let mut resultlist = Vec::<S>::new();
 
-        for res in results.vec() {
+        for res in results.to_vec() {
             match res {
                 Ok(entry) => {
                     let item: S = ciborium::from_reader(entry.value.reader())?;

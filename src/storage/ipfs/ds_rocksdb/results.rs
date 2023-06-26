@@ -13,7 +13,7 @@ impl Results for RocksdbResults {
     fn query(&self) -> &crate::storage::ipfs::datastore::query::Query {
         return &self.query;
     }
-    fn vec(&self) -> &Vec<Result<Entry>> {
+    fn to_vec(&self) -> &Vec<Result<Entry>> {
         return &self.results;
     }
 }

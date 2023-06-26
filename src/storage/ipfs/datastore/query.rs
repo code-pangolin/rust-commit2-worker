@@ -50,5 +50,5 @@ pub trait Results {
     // fn into_iter(self) -> Self::IntoIter;
     fn query(&self) -> &Query;
     // fn rest(&self) -> Vec<anyhow::Result<Entry>>;
-    fn vec(&self) -> &Vec<anyhow::Result<Entry>>;
+    fn to_vec(&self) -> &Vec<anyhow::Result<Entry>>;
 }
