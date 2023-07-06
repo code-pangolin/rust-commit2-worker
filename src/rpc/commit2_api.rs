@@ -4,7 +4,7 @@ use crate::rpc_api::{commit2_api::*, data_types::RPCState};
 
 /// RPC call to create a new JWT Token
 pub(in crate::rpc) async fn seal_commit2(
-    data: Data<RPCState>,
+    _data: Data<RPCState>,
     Params(_params): Params<SealCommit2Params>,
 ) -> Result<SealCommit2Result, JsonRpcError> {
     // data.worker

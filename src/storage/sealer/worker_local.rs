@@ -1,6 +1,3 @@
-use std::any::Any;
-
-use filecoin_proofs::PieceInfo;
 use serde::{Deserialize, Serialize};
 use strum::{EnumString, IntoStaticStr};
 use uuid::Uuid;
@@ -9,11 +6,11 @@ use super::{
     statestore::StateStore,
     storiface::{
         storage::{Commit1Out, SectorRef},
-        worker::CallID,
+        worker::{CallError, CallID},
     },
-    worker_calltracker::{Call, WorkerCallTracker},
+    worker_calltracker::WorkerCallTracker,
 };
-use crate::storage::ipfs::datastore::Datastore;
+use crate::{api::api_storage::WorkerReturn, storage::ipfs::datastore::Datastore};
 
 pub struct LocalWorker<
     T: Datastore,
@@ -35,8 +32,8 @@ impl<T: Datastore, R: WorkerReturn + std::marker::Send + std::marker::Sync + Clo
 
     pub fn seal_commit2(
         &self,
-        sector: SectorRef,
-        phase1_out: Commit1Out,
+        _sector: SectorRef,
+        _phase1_out: Commit1Out,
     ) -> anyhow::Result<CallID> {
         todo!()
     }
@@ -59,7 +56,7 @@ impl<T: Datastore, R: WorkerReturn + std::marker::Send + std::marker::Sync + Clo
 
         let ret = self.ret.clone();
 
-        let handler = tokio::spawn(async move {
+        let _handler = tokio::spawn(async move {
             match work(ci.clone()) {
                 Ok(res) => {
                     ret.return_seal_commit2(ci.clone(), res, None);
@@ -100,37 +97,16 @@ impl ToString for ReturnType {
     }
 }
 
-pub trait WorkerReturn: Sized {
-    fn return_seal_commit2(
-        &self,
-        callID: CallID,
-        proof: Vec<u8>,
-        err: Option<&CallError>,
-    ) -> anyhow::Result<()>;
-}
-
 #[derive(Debug, Clone)]
-pub struct ManagerReturn {}
+pub struct ManagerReturn {} //TODO: move to MinerApi
 
 impl WorkerReturn for ManagerReturn {
     fn return_seal_commit2(
         &self,
-        callID: CallID,
+        call_id: CallID,
         proof: Vec<u8>,
         err: Option<&CallError>,
     ) -> anyhow::Result<()> {
         todo!()
     }
-}
-
-pub struct CallError {
-    pub code: ErrorCode,
-    pub message: String,
-    pub sub: anyhow::Error,
-}
-pub enum ErrorCode {
-    ErrUnknown,
-    ErrTempUnknown = 100,
-    ErrTempWorkerRestart,
-    ErrTempAllocateSpace,
 }
