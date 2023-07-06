@@ -13,11 +13,14 @@ pub struct Call {
     pub result: ManyBytes, // json bytes
 }
 
-pub(in crate::storage::sealer) struct WorkerCallTracker<'a, T: Datastore> {
-    st: StateStore<'a, T>,
+pub(in crate::storage::sealer) struct WorkerCallTracker<T: Datastore> {
+    st: StateStore<T>,
 }
 
-impl<'a, T: Datastore> WorkerCallTracker<'a, T> {
+impl<'a, T: Datastore> WorkerCallTracker<T> {
+    pub(in crate::storage::sealer) fn new(statestore: StateStore<T>) -> Self {
+        Self { st: statestore }
+    }
     pub(in crate::storage::sealer) fn onStart(
         &self,
         ci: CallID,
@@ -52,8 +55,8 @@ impl<'a, T: Datastore> WorkerCallTracker<'a, T> {
     }
 
     pub(in crate::storage::sealer) fn unfinished(&self) -> anyhow::Result<Vec<Call>> {
-        //TODO: self.st.list()
-        todo!()
+        let calls = self.st.list::<Call>()?;
+        return Ok(calls);
     }
 }
 

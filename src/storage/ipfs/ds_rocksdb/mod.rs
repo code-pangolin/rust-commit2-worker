@@ -8,7 +8,7 @@ use super::datastore::{
     Datastore, Read, Write,
 };
 
-struct RocksDS {
+pub struct RocksDS {
     db: rocksdb::DB,
 }
 

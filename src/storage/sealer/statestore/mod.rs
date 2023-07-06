@@ -11,12 +11,12 @@ use crate::storage::ipfs::datastore::{
 };
 
 // github.com/filecoin-project/go-statestore@v0.2.0/store.goL16
-pub struct StateStore<'a, T: Datastore> {
-    pub(super) ds: &'a T,
+pub struct StateStore<T: Datastore> {
+    pub(super) ds: T,
 }
 
-impl<'a, T: Datastore> StateStore<'a, T> {
-    pub fn new(ds: &'a T) -> Self {
+impl<'a, T: Datastore> StateStore<T> {
+    pub fn new(ds: T) -> Self {
         Self { ds }
     }
 
@@ -39,7 +39,7 @@ impl<'a, T: Datastore> StateStore<'a, T> {
 
     pub fn get(&self, i: impl ToString) -> Box<StoredState<T>> {
         Box::new(StoredState {
-            ds: self.ds,
+            ds: &self.ds,
             name: StateStore::<T>::to_key(i),
         })
     }

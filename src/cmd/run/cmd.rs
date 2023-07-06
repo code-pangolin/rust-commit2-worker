@@ -25,7 +25,15 @@ use crate::{
         },
         Command,
     },
-    storage::sealer::{seal_tasks::TaskType, worker::WorkerInfo},
+    storage::{
+        ipfs::ds_rocksdb::RocksDS,
+        sealer::{
+            seal_tasks::TaskType,
+            statestore::StateStore,
+            worker::WorkerInfo,
+            worker_local::{LocalWorker, ManagerReturn},
+        },
+    },
 };
 
 #[derive(Parser, Debug)] // requires `derive` feature
@@ -263,6 +271,12 @@ impl Command for Run {
         });
         seal_handler.worker_repo = self.worker_repo.clone();
 
+        let store = RocksDS::new_datastore(
+            &rocksdb::Options::default(),
+            PathBuf::from(&self.worker_repo).join("statestore"),
+        )?;
+        let worker = Box::new(LocalWorker::new(StateStore::new(store), ManagerReturn {}));
+
         info!("Setting up control endpoint at {}", &self.listen);
 
         let addr: SocketAddr = self.listen.parse()?;
@@ -275,7 +289,7 @@ impl Command for Run {
             handler::router(h.clone()).into_make_service_with_connect_info::<SocketAddr>();
 
         let (rx, _tx) = tokio::sync::mpsc::channel(1);
-        let s3 = start_rpc_server(rx, &addr);
+        let s3 = start_rpc_server(rx, &addr, worker);
 
         let _ = join!(
             axum::Server::bind(&httpaddr).serve(handler),
