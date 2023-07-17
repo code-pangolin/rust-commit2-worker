@@ -1,5 +1,6 @@
 #![feature(async_closure)]
 #![feature(return_position_impl_trait_in_trait)]
+#![feature(async_fn_in_trait)]
 pub mod api;
 mod cmd;
 pub mod rpc;

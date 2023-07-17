@@ -101,7 +101,7 @@ impl ToString for ReturnType {
 pub struct ManagerReturn {} //TODO: move to MinerApi
 
 impl WorkerReturn for ManagerReturn {
-    fn return_seal_commit2(
+    async fn return_seal_commit2(
         &self,
         call_id: CallID,
         proof: Vec<u8>,

@@ -13,17 +13,12 @@ pub struct RemoteCommit2Params {
     pub commit1_out: Commit1Out,
 }
 
-pub trait StorageMiner {
-    fn return_seal_commit2(
-        &self,
-        call_id: CallID,
-        proof: Vec<u8>,
-        err: Option<&CallError>,
-    ) -> anyhow::Result<()>;
+pub trait StorageMiner: WorkerReturn {
+    // fn new(addr: String, token: Option<String>) -> Self;
 }
 
 pub trait WorkerReturn: Sized {
-    fn return_seal_commit2(
+    async fn return_seal_commit2(
         &self,
         call_id: CallID,
         proof: Vec<u8>,
