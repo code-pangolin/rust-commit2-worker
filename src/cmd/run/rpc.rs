@@ -28,7 +28,5 @@ pub async fn start_rpc_server(
         .map_err(|e| anyhow!("{}", e))?;
     let state = Arc::new(RPCState { nodeapi, worker });
 
-    println!("version::::::{}", version!());
-
     start_rpc(state, TcpListener::bind(addr)?, version!(), shutdown_send).await
 }

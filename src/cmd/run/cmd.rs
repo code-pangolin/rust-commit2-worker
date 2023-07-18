@@ -271,8 +271,10 @@ impl Command for Run {
         });
         seal_handler.worker_repo = self.worker_repo.clone();
 
+        let mut rocks_opt = rocksdb::Options::default();
+        rocks_opt.create_if_missing(true);
         let store = RocksDS::new_datastore(
-            &rocksdb::Options::default(),
+            &rocks_opt,
             PathBuf::from(&self.worker_repo).join("statestore"),
         )?;
         let worker = Box::new(LocalWorker::new(StateStore::new(store), ManagerReturn {}));

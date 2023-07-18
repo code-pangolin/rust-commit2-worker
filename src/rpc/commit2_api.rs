@@ -7,6 +7,7 @@ pub(in crate::rpc) async fn seal_commit2(
     _data: Data<RPCState>,
     Params(_params): Params<SealCommit2Params>,
 ) -> Result<SealCommit2Result, JsonRpcError> {
+    _data.worker.seal_commit2(_params.0, _params.1);
     // data.worker
     //TODO: put worker state in rpcstate
     // leveldb
