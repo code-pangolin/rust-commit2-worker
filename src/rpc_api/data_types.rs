@@ -6,13 +6,14 @@ use std::sync::Arc;
 use jsonrpc_v2::{MapRouter as JsonRpcMapRouter, Server as JsonRpcServer};
 use serde::{Deserialize, Serialize};
 
-use crate::storage::{ipfs::ds_rocksdb::RocksDS, sealer::worker_local::ManagerReturn};
+use crate::{api::client::StorageMinerRpcClient, storage::ipfs::ds_rocksdb::RocksDS};
 
 /// This is where you store persistent data, or at least access to stateful
 /// data.
 pub struct RPCState {
     pub nodeapi: jsonrpc_core_client::TypedClient,
-    pub worker: Box<crate::storage::sealer::worker_local::LocalWorker<RocksDS, ManagerReturn>>,
+    pub worker:
+        Box<crate::storage::sealer::worker_local::LocalWorker<RocksDS, StorageMinerRpcClient>>,
 }
 
 pub type JsonRpcServerState = Arc<JsonRpcServer<JsonRpcMapRouter>>;

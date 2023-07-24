@@ -1,15 +1,18 @@
 mod error;
-use std::env;
+use std::{env, sync::Arc};
 
+use async_trait::async_trait;
 use jsonrpc_v2::{Error, Id, RequestObject, V2};
 use libp2p::{multiaddr::Protocol, Multiaddr};
 use log::debug;
 use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tokio::sync::Mutex;
 
 use self::error::IntoAnyhow;
-use super::api_storage::{StorageMiner, WorkerReturn};
+use super::api_storage::{StorageMiner, StorageMinerError, WorkerReturn};
 
+#[derive(Debug, Clone)]
 pub struct StorageMinerRpcClient {}
 
 impl StorageMiner for StorageMinerRpcClient {
@@ -22,15 +25,13 @@ pub type ReturnSealCommit2Params = ();
 pub const RETURN_SEAL_COMMIT2: &str = "ReturnSealCommit2";
 
 impl WorkerReturn for StorageMinerRpcClient {
-    async fn return_seal_commit2(
+    fn return_seal_commit2(
         &self,
         call_id: crate::storage::sealer::storiface::worker::CallID,
         proof: Vec<u8>,
         err: Option<&crate::storage::sealer::storiface::worker::CallError>,
     ) -> anyhow::Result<()> {
-        call(RETURN_SEAL_COMMIT2, (call_id, proof, err))
-            .await
-            .into_anyhow()
+        call(RETURN_SEAL_COMMIT2, (call_id, proof, err)).into_anyhow()
     }
 }
 
@@ -146,7 +147,7 @@ fn multiaddress_to_url(multiaddr: Multiaddr) -> String {
 }
 
 /// Utility method for sending RPC requests over HTTP
-async fn call<P, R>(method_name: &str, params: P) -> Result<R, Error>
+fn call<P, R>(method_name: &str, params: P) -> Result<R, Error>
 where
     P: Serialize,
     R: DeserializeOwned,
@@ -166,7 +167,7 @@ where
         _ => request,
     };
 
-    let rpc_res = request.send().await?.error_for_status()?.json().await?;
+    let rpc_res = request.send()?.error_for_status()?.json()?;
 
     match rpc_res {
         JsonRpcResponse::Result { result, .. } => Ok(result),
@@ -178,7 +179,7 @@ where
     }
 }
 
-pub fn global_http_client() -> reqwest::Client {
-    static CLIENT: Lazy<reqwest::Client> = Lazy::new(reqwest::Client::new);
+pub fn global_http_client() -> reqwest::blocking::Client {
+    static CLIENT: Lazy<reqwest::blocking::Client> = Lazy::new(reqwest::blocking::Client::new);
     CLIENT.clone()
 }

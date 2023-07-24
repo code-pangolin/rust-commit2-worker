@@ -28,12 +28,10 @@ use crate::{
     storage::{
         ipfs::ds_rocksdb::RocksDS,
         sealer::{
-            seal_tasks::TaskType,
-            statestore::StateStore,
-            worker::WorkerInfo,
-            worker_local::{LocalWorker, ManagerReturn},
+            seal_tasks::TaskType, statestore::StateStore, worker::WorkerInfo,
+            worker_local::LocalWorker,
         },
-    },
+    }, api::client::StorageMinerRpcClient,
 };
 
 #[derive(Parser, Debug)] // requires `derive` feature
@@ -277,7 +275,10 @@ impl Command for Run {
             &rocks_opt,
             PathBuf::from(&self.worker_repo).join("statestore"),
         )?;
-        let worker = Box::new(LocalWorker::new(StateStore::new(store), ManagerReturn {}));
+        let worker = Box::new(LocalWorker::new(
+            StateStore::new(store),
+            StorageMinerRpcClient {},
+        ));
 
         info!("Setting up control endpoint at {}", &self.listen);
 

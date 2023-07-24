@@ -1,8 +1,10 @@
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc};
 
 use fvm_shared::address::Address;
+use log::error;
 use serde::{Deserialize, Serialize};
 use strum::{EnumString, IntoStaticStr};
+use tokio::time::{sleep, Sleep};
 use uuid::Uuid;
 
 use super::{
@@ -13,7 +15,10 @@ use super::{
     },
     worker_calltracker::WorkerCallTracker,
 };
-use crate::{api::api_storage::WorkerReturn, storage::ipfs::datastore::Datastore};
+use crate::{
+    api::api_storage::{StorageMinerError, WorkerReturn},
+    storage::ipfs::datastore::Datastore,
+};
 
 pub struct LocalWorker<
     T: Datastore + std::marker::Send + std::marker::Sync + 'static,
@@ -45,7 +50,7 @@ impl<
             id: Uuid::new_v4(),
         };
 
-        let _rt = ReturnType::SealCommit2;
+        let rt = ReturnType::SealCommit2;
 
         // self.ct.blocking_lock().onStart(ci.clone(), rt)?;
 
@@ -59,11 +64,18 @@ impl<
             );
 
             if let Err(e) = scp1o {
-                ret.return_seal_commit2(
-                    callid.clone(),
-                    vec![],
-                    Some(&CallError::new(ErrorCode::ErrUnknown, Some(e.into()))),
-                );
+                let call_error = CallError::new(ErrorCode::ErrUnknown, Some(e.into()));
+                loop {
+                    if let Err(e) =
+                        ret.return_seal_commit2(callid.clone(), vec![], Some(&call_error))
+                    {
+                        error!("return error, will retry in 5s: {}: {}", rt.to_string(), e);
+                        tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
+                    } else {
+                        break;
+                    };
+                }
+
                 return;
             }
 
@@ -79,11 +91,28 @@ impl<
                 filecoin_proofs_api::SectorId::from(sector.id.number),
             );
 
-            ct.onDone(callid.clone(), res.as_ref().unwrap().proof.clone());
+            if let Err(e) = ct.onDone(callid.clone(), res.as_ref().unwrap().proof.clone()) {
+                error!("tracking call (done): {}", e);
+            };
 
-            //TODO: retry
-            ret.return_seal_commit2(callid.clone(), res.unwrap().proof, None);
-            ct.onReturned(callid);
+            //TODO: retry time
+            let ret_res = ret.return_seal_commit2(callid.clone(), res.unwrap().proof, None);
+            let call_error = match ret_res {
+                Ok(_) => None,
+                Err(e) => Some(CallError::new(ErrorCode::ErrUnknown, Some(e.into()))),
+            };
+            loop {
+                if let Err(e) = ret.return_seal_commit2(callid.clone(), vec![], call_error.as_ref())
+                {
+                    error!("return error, will retry in 5s: {}: {}", rt.to_string(), e);
+                    tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
+                } else {
+                    break;
+                };
+            }
+            if let Err(e) = ct.onReturned(callid) {
+                error!("tracking call (done): {}", e);
+            };
         });
 
         Ok(ci)
@@ -115,19 +144,5 @@ impl ToString for ReturnType {
     fn to_string(&self) -> String {
         let s: &'static str = self.into();
         s.to_string()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ManagerReturn {} //TODO: move to MinerApi
-
-impl WorkerReturn for ManagerReturn {
-    async fn return_seal_commit2(
-        &self,
-        _call_id: CallID,
-        _proof: Vec<u8>,
-        _err: Option<&CallError>,
-    ) -> anyhow::Result<()> {
-        todo!()
     }
 }

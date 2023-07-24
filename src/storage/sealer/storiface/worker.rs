@@ -28,6 +28,10 @@ pub struct CallError {
     sub: Option<Arc<anyhow::Error>>,
 }
 
+unsafe impl Send for CallError{
+    
+}
+
 impl CallError {
     pub fn new(code: ErrorCode, err: Option<anyhow::Error>) -> Self {
         let message: String;

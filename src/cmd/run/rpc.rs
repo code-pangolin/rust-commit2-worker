@@ -9,18 +9,16 @@ use tokio::sync::mpsc::Sender;
 use version::version;
 
 use crate::{
+    api::client::StorageMinerRpcClient,
     rpc::start_rpc,
     rpc_api::data_types::RPCState,
-    storage::{
-        ipfs::ds_rocksdb::RocksDS,
-        sealer::worker_local::{LocalWorker, ManagerReturn},
-    },
+    storage::{ipfs::ds_rocksdb::RocksDS, sealer::worker_local::LocalWorker},
 };
 
 pub async fn start_rpc_server(
     shutdown_send: Sender<()>,
     addr: &SocketAddr,
-    worker: Box<LocalWorker<RocksDS, ManagerReturn>>,
+    worker: Box<LocalWorker<RocksDS, StorageMinerRpcClient>>,
 ) -> anyhow::Result<()> {
     let _infoenv = std::env::var("MINER_API_INFO").map_err(|_| anyhow!(""));
     let nodeapi: TypedClient = jsonrpc_core_client::transports::http::connect("url")
