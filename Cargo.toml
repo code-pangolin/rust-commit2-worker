@@ -82,3 +82,13 @@ cuda = [
     "fil-proofs-param/cuda",
     "filecoin-proofs-api/cuda",
 ]
+
+[patch.crates-io]
+filecoin-proofs = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+storage-proofs-core = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+storage-proofs-porep = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+storage-proofs-post = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+storage-proofs-update = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+fr32 = { git = "https://github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
+filecoin-proofs-api = { git = "https://github.com/filecoin-project/rust-filecoin-proofs-api", branch = "sn-c2" }
+bellperson = { git = "https://github.com/filecoin-project/bellperson.git", branch = "sn-c2" }
