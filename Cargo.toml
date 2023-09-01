@@ -6,6 +6,10 @@ name = "rust-commit2-worker"
 version = "0.1.0"
 edition = "2021"
 
+[[example]]
+name = "test"
+path = "examples/test.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -77,10 +81,16 @@ opencl = [
     "fil-proofs-param/opencl",
     "filecoin-proofs-api/opencl",
 ]
-cuda = [
+cuda-supraseal = [
     "filecoin-proofs/cuda-supraseal",
     "fil-proofs-param/cuda",
     "filecoin-proofs-api/cuda-supraseal",
+]
+
+cuda = [
+    "filecoin-proofs/cuda",
+    "fil-proofs-param/cuda",
+    "filecoin-proofs-api/cuda",
 ]
 
 [patch.crates-io]
@@ -93,6 +103,9 @@ filecoin-hashers = { git = "https://ghproxy.com/github.com/filecoin-project/rust
 fr32 = { git = "https://ghproxy.com/github.com/filecoin-project/rust-fil-proofs", branch = "sn-c2" }
 filecoin-proofs-api = { git = "https://ghproxy.com/github.com/filecoin-project/rust-filecoin-proofs-api", branch = "sn-c2" }
 bellperson = { git = "https://ghproxy.com/github.com/filecoin-project/bellperson.git", branch = "sn-c2" }
-blst = { git = "https://ghproxy.com/github.com/supranational/blst"}
+blst = { git = "https://ghproxy.com/github.com/supranational/blst" }
 fil-proofs-param = { path = "fil-proofs-param" }
 sppark = { git = "https://ghproxy.com/github.com/supranational/sppark" }
+
+[dev-dependencies]
+colored = "2.0.4"
