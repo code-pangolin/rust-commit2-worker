@@ -48,7 +48,7 @@ async fn seal_commit2_inner(
     )
     .map_err(|e| HandlerError::BadRequest(anyhow!("parse req {}", e)))?;
 
-    println!("{:?}", &input.commit1_out);
+    // println!("{:?}", &input.commit1_out);
 
     // https://github.com/filecoin-project/filecoin-ffi/blob/c149dfa67e6ea3db8c203023580a5052e724f99a/rust/src/proofs/api.rs#L217
 

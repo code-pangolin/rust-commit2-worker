@@ -13,11 +13,11 @@ check:
 	cargo +nightly udeps --all-targets
 	cargo fmt --check
 
-ENVS = RUST_LOG=$(LOG_LEVEL) FIL_PROOFS_PARAMETER_CACHE=~/.lotusworker/filecoin-proof-parameters LOTUS_WORKER_SKIP_PARAM=true LOTUS_WORKER_SECTOR_SIZE=2KiB
+ENVS = RUST_LOG=$(LOG_LEVEL) TMPDIR=/mnt/lotus/tmp FIL_PROOFS_PARAMETER_CACHE=/var/tmp/filecoin-proof-parameters LOTUS_WORKER_SKIP_PARAM=true
 
 .PHONY: runcuda
 runcuda:
-	$(ENVS)  cargo run --features cuda -- run
+	$(ENVS)  cargo run --features cuda --release -- run
 
 .PHONY: run
 run:

@@ -11,5 +11,6 @@ sudo dpkg -i cuda-keyring_1.0-1_all.deb
 sudo apt-get update
 sudo apt-get -y install cuda
 
+export PATH=/usr/local/cuda/bin:$PATH
 make runcuda
 ```
